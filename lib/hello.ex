@@ -14,4 +14,11 @@ defmodule Hello do
   def count_chars(string) do
     String.length(string)
   end
+
+  def reverse_words(string) do
+    string
+    |> String.split()
+    |> Enum.reverse()
+    |> Enum.join(" ")
+  end
 end
