@@ -6,7 +6,8 @@ workspace:
   root: /home/covertech/kodo/elixir/symphony-test-workspaces
 hooks:
   after_create: |
-    git clone /home/covertech/kodo/elixir/symphony-test .
+    GH_TOKEN=$(gh auth token)
+    git clone "https://ortegacmanuel:${GH_TOKEN}@github.com/ortegacmanuel/symphony-test.git" .
   after_run: |
     set -e
     BRANCH="symphony/${SYMPHONY_ISSUE_ID:-unknown}"
