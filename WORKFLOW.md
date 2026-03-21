@@ -11,14 +11,17 @@ hooks:
   after_run: |
     set -e
     BRANCH="symphony/${SYMPHONY_ISSUE_ID:-unknown}"
-    git checkout -B "$BRANCH"
-    if ! git diff --quiet HEAD || ! git diff --cached --quiet; then
-      git add -A
-      git commit -m "feat: ${SYMPHONY_ISSUE_TITLE:-work for $BRANCH}" --allow-empty || true
-    fi
+    # Stage and commit any uncommitted changes
+    git add -A
+    git diff --cached --quiet || git commit -m "feat: ${SYMPHONY_ISSUE_TITLE:-work for $BRANCH}" || true
+    # Create/reset feature branch at current HEAD (picks up agent's commits too)
+    git branch -f "$BRANCH" HEAD 2>/dev/null || git checkout -B "$BRANCH"
+    git checkout "$BRANCH"
+    # Rebase on latest trunk
     git fetch origin master 2>/dev/null || git fetch origin main 2>/dev/null || true
     DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "master")
-    git rebase "origin/$DEFAULT_BRANCH" || git rebase --abort
+    git rebase "origin/$DEFAULT_BRANCH" 2>/dev/null || git rebase --abort 2>/dev/null || true
+    # Push
     git push origin "$BRANCH" --force-with-lease
 agent:
   kind: claude
