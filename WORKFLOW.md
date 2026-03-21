@@ -32,7 +32,9 @@ hooks:
         --head "$BRANCH" \
         --base master \
         --title "feat: ${TITLE}" \
-        --body "Automated PR from Symphony agent for issue #${SYMPHONY_ISSUE_ID}." \
+        --body "Automated PR from Symphony agent.
+
+Closes #${SYMPHONY_ISSUE_ID}" \
         2>/dev/null || true
     fi
 agent:
