@@ -6,4 +6,8 @@ defmodule Hello do
   def greet(name) do
     "Hello, #{name}! Welcome to Symphony."
   end
+
+  def farewell(name) do
+    "Goodbye, #{name}! See you next time."
+  end
 end
