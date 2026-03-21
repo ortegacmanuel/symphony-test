@@ -11,9 +11,10 @@ hooks:
   after_run: |
     set -e
     BRANCH="symphony/${SYMPHONY_ISSUE_ID:-unknown}"
+    TITLE="${SYMPHONY_ISSUE_TITLE:-work for $BRANCH}"
     # Stage and commit any uncommitted changes
     git add -A
-    git diff --cached --quiet || git commit -m "feat: ${SYMPHONY_ISSUE_TITLE:-work for $BRANCH}" || true
+    git diff --cached --quiet || git commit -m "feat: ${TITLE}" || true
     # Create/reset feature branch at current HEAD (picks up agent's commits too)
     git branch -f "$BRANCH" HEAD 2>/dev/null || git checkout -B "$BRANCH"
     git checkout "$BRANCH"
@@ -21,12 +22,24 @@ hooks:
     git fetch origin master 2>/dev/null || git fetch origin main 2>/dev/null || true
     DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@' || echo "master")
     git rebase "origin/$DEFAULT_BRANCH" 2>/dev/null || git rebase --abort 2>/dev/null || true
-    # Push
+    # Push feature branch
     git push origin "$BRANCH" --force-with-lease
+    # Create PR if one doesn't exist yet for this branch
+    EXISTING_PR=$(gh pr list --repo ortegacmanuel/symphony-test --head "$BRANCH" --json number --jq '.[0].number' 2>/dev/null || echo "")
+    if [ -z "$EXISTING_PR" ]; then
+      gh pr create \
+        --repo ortegacmanuel/symphony-test \
+        --head "$BRANCH" \
+        --base master \
+        --title "feat: ${TITLE}" \
+        --body "Automated PR from Symphony agent for issue #${SYMPHONY_ISSUE_ID}." \
+        2>/dev/null || true
+    fi
 agent:
   kind: claude
   max_concurrent_agents: 1
   max_turns: 10
+  auto_merge: false
 claude:
   model: sonnet
   permission_mode: bypassPermissions
