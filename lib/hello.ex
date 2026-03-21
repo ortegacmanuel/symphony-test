@@ -21,4 +21,8 @@ defmodule Hello do
     |> Enum.reverse()
     |> Enum.join(" ")
   end
+
+  def shout(string) do
+    String.upcase(string)
+  end
 end
