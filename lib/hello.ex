@@ -10,4 +10,8 @@ defmodule Hello do
   def farewell(name) do
     "Goodbye, #{name}! See you next time."
   end
+
+  def count_chars(string) do
+    String.length(string)
+  end
 end
