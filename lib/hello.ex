@@ -25,4 +25,8 @@ defmodule Hello do
   def shout(string) do
     String.upcase(string)
   end
+
+  def add_todo(todos, item) when is_list(todos) and is_binary(item) do
+    {:todo_added, todos ++ [item]}
+  end
 end
